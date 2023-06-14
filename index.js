@@ -4,9 +4,9 @@ const port = 4000;
 const cors = require("cors");
 app.use(cors());
 app.use(express.json());
+require("dotenv").config();
 const { MongoClient, ServerApiVersion } = require("mongodb");
-const uri =
-  "mongodb+srv://sportyDb:SERd6ApVJTcELH6m@cluster0.xtgyyfk.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASS}@cluster0.xtgyyfk.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -20,10 +20,17 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const classCollection = client.db("SportyDb").collection("populer_classes");
+    const instructorsCollection = client
+      .db("SportyDb")
+      .collection("top_instructors");
 
     app.get("/popular_classes", async (req, res) => {
       const classes = await classCollection.find().toArray();
       res.send(classes);
+    });
+    app.get("/top-instructors", async (req, res) => {
+      const instructors = await instructorsCollection.find().toArray();
+      res.send(instructors);
     });
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
