@@ -19,16 +19,21 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    const classCollection = client.db("SportyDb").collection("populer_classes");
+    const popularClassCollection = client
+      .db("SportyDb")
+      .collection("populer_classes");
     const topInstructorsCollection = client
       .db("SportyDb")
       .collection("top_instructors");
+
     const instructorsCollection = client
       .db("SportyDb")
       .collection("instructors");
 
+    const classCollection = client.db("SportyDb").collection("classes");
+
     app.get("/popular_classes", async (req, res) => {
-      const classes = await classCollection.find().toArray();
+      const classes = await popularClassCollection.find().toArray();
       res.send(classes);
     });
 
@@ -42,6 +47,11 @@ async function run() {
     app.get("/instructors", async (req, res) => {
       const instructors = await instructorsCollection.find().toArray();
       res.send(instructors);
+    });
+    // get all classes
+    app.get("/classes", async (req, res) => {
+      const classes = await classCollection.find().toArray();
+      res.send(classes);
     });
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
