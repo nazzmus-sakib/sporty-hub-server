@@ -5,7 +5,7 @@ const cors = require("cors");
 app.use(cors());
 app.use(express.json());
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASS}@cluster0.xtgyyfk.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -31,6 +31,9 @@ async function run() {
       .collection("instructors");
 
     const classCollection = client.db("SportyDb").collection("classes");
+    const selectedCollection = client
+      .db("SportyDb")
+      .collection("selected-class");
 
     app.get("/popular_classes", async (req, res) => {
       const classes = await popularClassCollection.find().toArray();
@@ -52,6 +55,33 @@ async function run() {
     app.get("/classes", async (req, res) => {
       const classes = await classCollection.find().toArray();
       res.send(classes);
+    });
+
+    // post selected class
+    app.post("/selected-class", async (req, res) => {
+      const data = req.body;
+
+      const result = await selectedCollection.insertOne(data);
+      res.send(result);
+    });
+    // find selected class by email
+    app.get("/selected-class/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await selectedCollection
+        .find({
+          purchase_by: email,
+        })
+        .toArray();
+      res.send(result);
+    });
+    // delete selected class by id
+    app.delete("/selected-class/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await selectedCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+
+      res.send(result);
     });
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
