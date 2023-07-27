@@ -112,7 +112,12 @@ async function run() {
     // get payment history
     app.get("/payment/:email", async (req, res) => {
       const email = req.params.email;
-      const result = await paymentCollection.find({ email: email }).toArray();
+      const result = await paymentCollection
+        .find({ email: email })
+        .sort({
+          date: -1,
+        })
+        .toArray();
       res.send(result);
     });
     // delete selected when successfully enrolled
