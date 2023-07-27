@@ -116,8 +116,12 @@ async function run() {
       res.send(result);
     });
     // delete selected when successfully enrolled
-    app.delete("/delete-selected-class", async (req, res) => {
-      const { selectedId } = req.body;
+    app.delete("/delete-selected-class/:selectedId", async (req, res) => {
+      const selectedId = req.params.selectedId;
+      const result = await selectedCollection.deleteOne({
+        _id: new ObjectId(selectedId),
+      });
+      res.send(result);
     });
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
