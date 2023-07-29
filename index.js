@@ -39,6 +39,19 @@ async function run() {
       .db("SportyDb")
       .collection("selected-class");
     const paymentCollection = client.db("SportyDb").collection("payments");
+    const userCollection = client.db("SportyDb").collection("users");
+
+    // save user to db
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const email = req.query.email;
+      const isExist = await userCollection.findOne({ email: email });
+      if (isExist) {
+        return res.send({ message: "user already exist" });
+      }
+      const result = await userCollection.insertOne(user);
+      res.send(result);
+    });
 
     app.get("/popular_classes", async (req, res) => {
       const classes = await popularClassCollection.find().toArray();
@@ -61,7 +74,12 @@ async function run() {
       const classes = await classCollection.find().toArray();
       res.send(classes);
     });
-
+    // post classes by instructor
+    app.post("/classes", async (req, res) => {
+      const classes = req.body;
+      const result = await classCollection.insertOne(classes);
+      res.send(result);
+    });
     // post selected class
     app.post("/selected-class", async (req, res) => {
       const data = req.body;
@@ -141,6 +159,19 @@ async function run() {
       );
 
       res.send(result);
+    });
+
+    // find user role instructor
+    app.get("/instructor/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await userCollection.findOne({ email: email });
+
+      if (result) {
+        res.send({ role: result.role });
+      } else {
+        // Handle the case when the user with the given email is not found
+        res.status(404).send({ error: "User not found" });
+      }
     });
 
     // Connect the client to the server	(optional starting in v4.7)
