@@ -196,6 +196,49 @@ async function run() {
       }
     });
 
+    // find user role admin
+    app.get("/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await userCollection.findOne({ email: email });
+
+      if (result) {
+        res.send({ role: result.role });
+      } else {
+        // Handle the case when the user with the given email is not found
+        res.status(404).send({ error: "User not found" });
+      }
+    });
+
+    // update status pending to approve
+    app.patch("/update-status-approved/:id", async (req, res) => {
+      const classId = req.params.id;
+      const updatedDoc = {
+        $set: { status: "approved" },
+      };
+      const options = { upsert: true };
+      const result = await classCollection.updateOne(
+        { _id: new ObjectId(classId) },
+        updatedDoc,
+        options
+      );
+
+      res.send(result);
+    });
+    // update status pending to deny
+    app.patch("/update-status-deny/:id", async (req, res) => {
+      const classId = req.params.id;
+      const updatedDoc = {
+        $set: { status: "denied" },
+      };
+      const options = { upsert: true };
+      const result = await classCollection.updateOne(
+        { _id: new ObjectId(classId) },
+        updatedDoc,
+        options
+      );
+
+      res.send(result);
+    });
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     // Send a ping to confirm a successful connection
