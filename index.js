@@ -74,6 +74,13 @@ async function run() {
       const classes = await classCollection.find().toArray();
       res.send(classes);
     });
+    // get  classes by email
+    app.get("/classes/:email", async (req, res) => {
+      const classes = await classCollection
+        .find({ email: req.params.email })
+        .toArray();
+      res.send(classes);
+    });
     // post classes by instructor
     app.post("/classes", async (req, res) => {
       const classes = req.body;
@@ -147,7 +154,7 @@ async function run() {
       res.send(result);
     });
 
-    // TODO: update seats after enrollment
+    // update seats after enrollment
     app.patch("/update-seats/:classId", async (req, res) => {
       const classId = req.params.classId;
       const updatedDoc = {
@@ -156,6 +163,21 @@ async function run() {
       const result = await classCollection.updateOne(
         { _id: new ObjectId(classId) },
         updatedDoc
+      );
+
+      res.send(result);
+    });
+    // update enrollment number for each after enrollment
+    app.patch("/update-enroll-number/:classId", async (req, res) => {
+      const classId = req.params.classId;
+      const updatedDoc = {
+        $inc: { total_enroll: +1 },
+      };
+      const options = { upsert: true };
+      const result = await classCollection.updateOne(
+        { _id: new ObjectId(classId) },
+        updatedDoc,
+        options
       );
 
       res.send(result);
