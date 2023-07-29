@@ -74,6 +74,11 @@ async function run() {
       const classes = await classCollection.find().toArray();
       res.send(classes);
     });
+    // get all user
+    app.get("/users", async (req, res) => {
+      const users = await userCollection.find().toArray();
+      res.send(users);
+    });
     // get  classes by email
     app.get("/classes/:email", async (req, res) => {
       const classes = await classCollection
@@ -233,6 +238,55 @@ async function run() {
       const options = { upsert: true };
       const result = await classCollection.updateOne(
         { _id: new ObjectId(classId) },
+        updatedDoc,
+        options
+      );
+
+      res.send(result);
+    });
+    // update user role student to instructor
+    app.patch("/update-role-instructor/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedDoc = {
+        $set: { role: "instructor" },
+      };
+      const options = { upsert: true };
+      const result = await userCollection.updateOne(
+        { _id: new ObjectId(id) },
+        updatedDoc,
+        options
+      );
+
+      res.send(result);
+    });
+
+    // update user role student to admin
+    app.patch("/update-role-admin/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedDoc = {
+        $set: { role: "admin" },
+      };
+      const options = { upsert: true };
+      const result = await userCollection.updateOne(
+        { _id: new ObjectId(id) },
+        updatedDoc,
+        options
+      );
+
+      res.send(result);
+    });
+
+    // update feedback by admin
+    app.patch("/update-feedback/:id", async (req, res) => {
+      const id = req.params.id;
+      const { feedback } = req.body;
+      console.log(feedback);
+      const updatedDoc = {
+        $set: { feedback: feedback },
+      };
+      const options = { upsert: true };
+      const result = await classCollection.updateOne(
+        { _id: new ObjectId(id) },
         updatedDoc,
         options
       );
